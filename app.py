@@ -134,3 +134,91 @@ with tab1:
                 """
                 with st.spinner(f"Generating {num_mcqs} unique practice questions..."):
                     response = client.chat.completions.create(
+                        messages=[
+                            {"role": "system", "content": f"You are an expert test builder fluent in {language}."},
+                            {"role": "user", "content": prompt}
+                        ],
+                        model="llama-3.3-70b-versatile",
+                        temperature=0.8
+                    )
+                    st.success("🎉 Quiz Ready!")
+                    st.markdown(response.choices[0].message.content, unsafe_allow_html=True)
+            except Exception as e:
+                st.error(f"❌ Error: {e}")
+
+# ---------------------------------------------------------
+# TAB 2: Deep Study Material
+# ---------------------------------------------------------
+with tab2:
+    st.subheader("📚 Detailed Study Material & Guides")
+    study_topic = st.text_input(
+        "Enter topic to learn:", 
+        placeholder="e.g., Digital SAT Grammar Rules, ASL Fingerspelling, Psychology Theories, Business Strategy"
+    )
+    
+    if st.button("✨ Generate Study Notes", type="primary"):
+        if not api_key:
+            st.error("⚠️ Please enter your Groq API Key in the left sidebar.")
+        elif not study_topic.strip():
+            st.warning("⚠️ Please enter a topic first.")
+        else:
+            try:
+                client = Groq(api_key=api_key)
+                prompt = f"""
+                You are a master tutor in {subject}.
+                Provide comprehensive, highly structured study material for: '{study_topic}'.
+                Level: {exam_level}.
+                Language / System: {language}.
+                
+                Structure requirements:
+                - Clear headings, key definitions, core concepts, bullet points, and real-world examples.
+                - For SAT: Cover core strategies, rules, formulas, and common traps.
+                - For Sign Languages: Describe handshapes, movement, locations, and facial expressions.
+                - Include key takeaways and practical practice tips.
+                """
+                with st.spinner("Writing deep study notes..."):
+                    response = client.chat.completions.create(
+                        messages=[
+                            {"role": "system", "content": f"You are a helpful tutor fluent in {language}."},
+                            {"role": "user", "content": prompt}
+                        ],
+                        model="llama-3.3-70b-versatile"
+                    )
+                    st.success("🎉 Study Notes Ready!")
+                    st.markdown(response.choices[0].message.content)
+            except Exception as e:
+                st.error(f"❌ Error: {e}")
+
+# ---------------------------------------------------------
+# TAB 3: Free-Response & Practice Scenarios
+# ---------------------------------------------------------
+with tab3:
+    st.subheader("✏️ Practical Scenarios & Case Studies")
+    q_topic = st.text_input("Enter topic:", placeholder="e.g., Business Marketing Strategy, SAT Essay Analysis, Proofs")
+    
+    if st.button("📝 Generate Exercises", type="primary"):
+        if not api_key:
+            st.error("⚠️ Please enter your Groq API Key in the left sidebar.")
+        elif not q_topic.strip():
+            st.warning("⚠️ Please enter a topic first.")
+        else:
+            try:
+                client = Groq(api_key=api_key)
+                prompt = f"""
+                Create 3 practice scenarios, passage analysis, or open questions for: '{q_topic}'.
+                Subject: {subject} | Level: {exam_level} | System: {language}.
+                
+                Include a full model answer inside an expandable details block for each question.
+                """
+                with st.spinner("Creating practice exercises..."):
+                    response = client.chat.completions.create(
+                        messages=[
+                            {"role": "system", "content": f"You are an instructor fluent in {language}."},
+                            {"role": "user", "content": prompt}
+                        ],
+                        model="llama-3.3-70b-versatile"
+                    )
+                    st.success("🎉 Practice Exercises Ready!")
+                    st.markdown(response.choices[0].message.content, unsafe_allow_html=True)
+            except Exception as e:
+                st.error(f"❌ Error: {e}")
