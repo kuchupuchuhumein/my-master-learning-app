@@ -101,9 +101,19 @@ with tab1:
             st.markdown(message["content"])
 
     # User chat input
-    if user_query := st.chat_input("Ask a doubt, request a proof, or type anything..."):
+    user_query = st.chat_input("Ask a doubt, request a proof, or type anything...")
+    if user_query:
         if not api_key:
             st.error("⚠️ Please enter your Groq API Key in the left sidebar to start chatting.")
         else:
-            # Display user message
-            st.session_state.messages.append({"role": "user", "content": user_query
+            # Display user message (FIXED LINE BELOW)
+            st.session_state.messages.append({"role": "user", "content": user_query})
+            with st.chat_message("user"):
+                st.markdown(user_query)
+
+            # Generate AI response
+            try:
+                client = Groq(api_key=api_key)
+                
+                system_prompt = f"""
+                You are a patient, brilliant
