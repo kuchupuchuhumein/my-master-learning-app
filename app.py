@@ -1,254 +1,223 @@
 import streamlit as st
 from groq import Groq
 
-# 1. Page Setup
+# Page Setup
 st.set_page_config(
-    page_title="✨ Master Learning & AIR 1 Portal ✨", 
-    page_icon="🎓", 
-    layout="wide"
+    page_title="Universal Mastery & Exam Hub", 
+    page_icon="🧠", 
+    layout="centered"
 )
 
-# 2. Cute & Modern CSS
-st.markdown("""
-<style>
-    .stApp {
-        background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-    }
+st.title("🧠 Universal Mastery & Learning Hub")
+st.write("Master anything: Sign languages (ASL), Psychology, Business, Olympiads, JEE, and more!")
+
+# Sidebar Settings
+with st.sidebar:
+    st.header("⚙️ Global & Exam Settings")
+    api_key = st.text_input(
+        "Enter your Groq API Key:", 
+        type="password", 
+        help="Get your free key from console.groq.com"
+    )
     
-    .main-title {
-        font-family: 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
-        color: #ff6b6b;
-        text-align: center;
-        font-size: 2.8rem;
-        font-weight: bold;
-        margin-bottom: 5px;
-    }
+    st.markdown("---")
     
-    .sub-title {
-        text-align: center;
-        color: #576574;
-        font-size: 1.1rem;
-        margin-bottom: 25px;
-    }
-
-    .stButton>button {
-        background: linear-gradient(45deg, #ff7675, #6c5ce7) !important;
-        color: white !important;
-        font-weight: bold !important;
-        border-radius: 25px !important;
-        padding: 10px 25px !important;
-        border: none !important;
-        transition: transform 0.2s, box-shadow 0.2s !important;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.15) !important;
-    }
-    
-    .stButton>button:hover {
-        transform: scale(1.03) !important;
-        box-shadow: 0 6px 15px rgba(0,0,0,0.2) !important;
-    }
-</style>
-""", unsafe_allow_html=True)
-
-# 3. Header Title
-st.markdown("<h1 class='main-title'>🎓 ✨ Master Learning & Rank 1 Portal ✨</h1>", unsafe_allow_html=True)
-st.markdown("<p class='sub-title'>Learn <b>any language or subject</b> deeply step-by-step & practice unlimited non-repeating questions! 🚀</p>", unsafe_allow_html=True)
-
-# 4. Sidebar Controls
-st.sidebar.markdown("## ⚙️ **Control Panel**")
-api_key = st.sidebar.text_input("🔑 Enter Groq API Key:", type="password")
-
-category = st.sidebar.selectbox(
-    "📚 Choose Learning Domain:",
-    [
-        "Physics",
-        "Chemistry",
-        "Mathematics",
-        "Psychology",
-        "Business Studies & Economics",
-        "Sign Language (ISL / ASL)",
-        "Language Learning (Any World Language)",
-        "UPSC / History / Polity",
-        "Custom Subject"
-    ]
-)
-
-level = st.sidebar.radio(
-    "🎯 Select Difficulty Level:",
-    ["🌱 Basics (Absolute Beginner)", "📈 Intermediate Level", "🏆 AIR 1 / Master Level"]
-)
-
-# Track session state for infinite non-repeating question generations
-if "generated_count" not in st.session_state:
-    st.session_state["generated_count"] = 0
-
-# 5. Main Navigation Tabs
-tab1, tab2 = st.tabs(["📚 Study & Practice Material", "💬 Instant Doubt Solver Chat"])
-
-# --- TAB 1: UNLIMITED PRACTICE & DEEP STUDY MATERIAL ---
-with tab1:
-    st.markdown("### 🛠️ **Customization**")
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        feature = st.radio(
-            "✨ Select What You Want to Generate:",
-            [
-                "📚 Deep & Complete Topic Explanation",
-                "📄 Formula / Grammar Rules / Cheat Sheet",
-                "🎯 10 Unique Practice Questions with Solutions"
-            ]
-        )
-
-    with col2:
-        if category == "Language Learning (Any World Language)":
-            target_lang = st.text_input("🌐 Language to Learn:", "Japanese")
-            topic = st.text_input("📌 Specific Topic / Grammar Area:", "Greetings & Basic Sentence Structure")
-            subject_str = f"Language: {target_lang}"
-        else:
-            if category == "Custom Subject":
-                subject_str = st.text_input("📖 Custom Subject Name:", "Computer Science")
-            else:
-                subject_str = category
-            topic = st.text_input("📌 Specific Topic / Chapter:", "General Fundamentals")
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    if st.button("✨ Generate Material / Questions ✨", use_container_width=True):
-        if not api_key:
-            st.error("⚠️ Please enter your Groq API key in the left sidebar to start!")
-        else:
-            st.session_state["generated_count"] += 1
-            client = Groq(api_key=api_key)
-
-            with st.spinner("🌟 Generating deep study material for you..."):
-                try:
-                    if "10 Unique Practice Questions" in feature:
-                        prompt = f"""
-                        You are an elite professor and paper-setter for '{subject_str}' for topic '{topic}'.
-                        Target level: '{level}'.
-                        Unique Attempt Seed (ensures questions NEVER repeat across requests): {st.session_state['generated_count']}.
-
-                        Generate **10 BRAND NEW, UNIQUE, non-repetitive practice questions** tailored to '{level}'.
-                        Include options A, B, C, D for multiple-choice questions.
-
-                        Format clearly as:
-                        ### 🎯 10 Practice Questions ({level} - Set #{st.session_state['generated_count']})
-
-                        Format each question like:
-                        **Question X:** [Write question here]
-                        ---
-
-                        Insert this EXACT divider line:
-                        |||SPLIT|||
-
-                        ### 🧠 Step-by-Step Answer Keys & Comprehensive Solutions
-                        Provide exhaustive, step-by-step explanations and answers for all 10 questions!
-                        """
-                    elif "Formula / Grammar Rules" in feature:
-                        prompt = f"""
-                        Provide a complete, deep **Cheat Sheet (Formulas, Vocabulary, or Key Rules)** for '{subject_str}', topic '{topic}' at level '{level}'.
-                        Include:
-                        1. Comprehensive Formulas, Vocabulary Lists, or Key Rules
-                        2. Clear Definitions of Variables / Technical Terms
-                        3. Memory Tricks, Shortcuts & Exam Hacks
-                        4. Common Trap Mistakes to Avoid
-                        """
-                    else:
-                        prompt = f"""
-                        You are an expert professor teaching '{subject_str}' for the topic '{topic}'.
-                        The student is at '{level}' level and requires an EXTREMELY DETAILED, IN-DEPTH, AND COMPREHENSIVE explanation.
-
-                        Explain everything deeply step-by-step using this exact structure:
-
-                        ### 1. 🌟 Fundamental Core Concept & Big Picture
-                        Explain the core intuition in depth using simple analogies, conceptual models, and mental frameworks.
-
-                        ### 2. 🔬 Deep-Dive Technical & Theoretical Breakdown
-                        Break down every sub-concept, mathematical foundation, mechanism, or grammatical rule step-by-step without skipping steps.
-
-                        ### 3. 📐 Formulas, Derivations & Notations (if applicable)
-                        List all relevant formulas, definitions, and step-by-step logic.
-
-                        ### 4. 💡 Comprehensive Worked Examples
-                        Provide 2 concrete, fully-solved, step-by-step examples demonstrating how this concept is applied.
-
-                        ### 5. ⚠️ Traps, Common Misconceptions & Ranker Insights
-                        Detail common student errors, edge cases, and high-yield strategy tips.
-                        """
-
-                    response = client.chat.completions.create(
-                        messages=[{"role": "user", "content": prompt}],
-                        model="llama-3.3-70b-versatile",
-                        max_completion_tokens=4000
-                    )
-
-                    raw_content = response.choices[0].message.content
-
-                    if "|||SPLIT|||" in raw_content:
-                        q_part, sol_part = raw_content.split("|||SPLIT|||")
-                        st.session_state["content_main"] = q_part
-                        st.session_state["content_sub"] = sol_part
-                    else:
-                        st.session_state["content_main"] = raw_content
-                        st.session_state["content_sub"] = None
-
-                except Exception as e:
-                    st.error(f"❌ Error fetching data: {e}")
-
-    # Render Study Content
-    if "content_main" in st.session_state:
-        st.markdown("---")
-        st.markdown(st.session_state["content_main"])
-
-    if st.session_state.get("content_sub"):
-        st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("💡 Show Answer Key & Detailed Solutions"):
-            st.success(st.session_state["content_sub"])
-
-
-# --- TAB 2: INSTANT DOUBT SOLVER CHATBOT ---
-with tab2:
-    st.markdown("### 💬 **Ask Your Doubts Anytime!**")
-    st.write(f"Currently helping you with **{category}** ({level})")
-
-    if "messages" not in st.session_state:
-        st.session_state.messages = [
-            {"role": "assistant", "content": f"Hi there! 👋 I'm your private tutor. Ask me any doubt about **{category}** or any other topic, and I'll explain it in simple, step-by-step detail!"}
+    # Language Selector (Spoken & Sign Languages)
+    language = st.selectbox(
+        "🌐 Output Language / System:",
+        [
+            "English",
+            "American Sign Language (ASL - Visual/Gloss Description)",
+            "British Sign Language (BSL - Gloss Description)",
+            "Indian Sign Language (ISL - Gloss Description)",
+            "Hindi", "Spanish", "French", "German", 
+            "Mandarin Chinese", "Arabic", "Portuguese", "Russian", 
+            "Japanese", "Korean", "Italian"
         ]
+    )
+    
+    # Target Rigor / Level
+    exam_level = st.selectbox(
+        "🎯 Rigor / Level:",
+        [
+            "Beginner / Introductory",
+            "Intermediate",
+            "Advanced / University Level",
+            "Business Professional / Corporate",
+            "IOQM / RMO / INMO (Math Olympiads)",
+            "JEE Advanced (Physics, Chemistry, Math)",
+            "JEE Main",
+            "International Science Olympiads (IPhO, IChO, IBO)",
+            "NEET (Medical Entrance)",
+            "AP / IB Higher Level (HL)",
+            "Standard High School (Grades 9-12)"
+        ]
+    )
+    
+    # Expanded Subject Selector
+    subject = st.selectbox(
+        "📚 Select Subject Area:",
+        [
+            "Psychology & Cognitive Science (Behavioral, Clinical, Neuropsychology)",
+            "Business, Finance & Entrepreneurship (Marketing, Management, Economics)",
+            "Sign Language & Linguistics (ASL, Fingerspelling, Grammar)",
+            "Mathematics (Algebra, Combinatorics, Geometry, Number Theory, Calculus)",
+            "Physics (Mechanics, Electromagnetism, Quantum, Optics, Thermodynamics)",
+            "Chemistry (Organic, Inorganic, Physical)",
+            "Biology & Neuroscience",
+            "Computer Science & Competitive Programming",
+            "History & World Events",
+            "Literature & Language Arts",
+            "General / Any Subject"
+        ]
+    )
 
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+# App Tabs
+tab1, tab2, tab3 = st.tabs(["📖 Comprehensive Notes", "🎯 MCQ & Quiz Hub", "✏️ Open/Subjective Practice"])
 
-    if user_doubt := st.chat_input("Type your question or doubt here..."):
+# ---------------------------------------------------------
+# TAB 1: Study Material & Guides
+# ---------------------------------------------------------
+with tab1:
+    st.subheader("📚 In-Depth Concept Masterclass")
+    study_topic = st.text_input(
+        "Enter topic, sign, or concept:", 
+        placeholder="e.g., ASL Alphabet/Syntax, Cognitive Dissonance, Swot Analysis, Rotational Dynamics"
+    )
+    
+    if st.button("✨ Generate Study Notes", type="primary"):
         if not api_key:
-            st.error("⚠️ Please enter your Groq API key in the left sidebar to chat!")
+            st.error("⚠️ Please enter your Groq API Key in the left sidebar.")
+        elif not study_topic.strip():
+            st.warning("⚠️ Please enter a topic first.")
         else:
-            st.chat_message("user").markdown(user_doubt)
-            st.session_state.messages.append({"role": "user", "content": user_doubt})
+            try:
+                client = Groq(api_key=api_key)
+                prompt = f"""
+                You are a world-class instructor in {subject}.
+                Provide an in-depth, clear explanation for: '{study_topic}'.
+                Selected Level/Rigor: {exam_level}.
+                Language/Format Requirement: Output strictly in {language}.
+                
+                Note for Sign Languages (e.g., ASL/BSL): Describe handshapes, facial expressions, palm orientations, movement, and visual gloss notation step-by-step!
+                
+                Format requirements:
+                - Clear definitions, core theories, equations, or visual sign instructions where applicable.
+                - Real-world case studies, psychological studies, or business applications.
+                - Step-by-step worked example or practical breakdown.
+                """
+                with st.spinner("Generating detailed notes..."):
+                    response = client.chat.completions.create(
+                        messages=[
+                            {"role": "system", "content": f"You are an expert tutor fluent in {language}."},
+                            {"role": "user", "content": prompt}
+                        ],
+                        model="llama-3.3-70b-versatile"
+                    )
+                    st.success("🎉 Notes Ready!")
+                    st.markdown(response.choices[0].message.content)
+            except Exception as e:
+                st.error(f"❌ Error: {e}")
 
-            system_instruction = {
-                "role": "system",
-                "content": f"You are a friendly, genius AI professor helping a student learn {category} at {level} level. Explain doubts deeply step-by-step with clear examples."
-            }
+# ---------------------------------------------------------
+# TAB 2: Multiple Choice Questions (MCQs)
+# ---------------------------------------------------------
+with tab2:
+    st.subheader("🎯 Practice MCQs & Knowledge Checks")
+    mcq_topic = st.text_input("Enter quiz topic:", placeholder="e.g., ASL Grammar Rules, Pavlovian Conditioning, Balance Sheets, JEE Integration")
+    num_mcqs = st.slider("Number of Questions:", min_value=1, max_value=10, value=5)
+    
+    if st.button("🚀 Generate Quiz Questions", type="primary"):
+        if not api_key:
+            st.error("⚠️ Please enter your Groq API Key in the left sidebar.")
+        elif not mcq_topic.strip():
+            st.warning("⚠️ Please enter a topic first.")
+        else:
+            try:
+                client = Groq(api_key=api_key)
+                prompt = f"""
+                You are an exam writer in {subject} at the {exam_level} level.
+                Topic: '{mcq_topic}'.
+                
+                Requirements:
+                - Create {num_mcqs} challenging multiple-choice questions matching the style of {subject} / {exam_level}.
+                - Language/Format: Write strictly in {language}.
+                - Provide 4 distinct options (A, B, C, D) for each question.
+                - Include clear explanations in the expandable answer box.
 
-            full_messages = [system_instruction] + [
-                {"role": m["role"], "content": m["content"]} for m in st.session_state.messages
-            ]
+                Format:
+                ### Question [Number]
+                [Question text]
+                - **A)** [Option A]
+                - **B)** [Option B]
+                - **C)** [Option C]
+                - **D)** [Option D]
 
-            client = Groq(api_key=api_key)
+                <details>
+                <summary><b>Reveal Correct Answer & Explanation</b></summary>
 
-            with st.chat_message("assistant"):
-                with st.spinner("Analyzing doubt..."):
-                    try:
-                        response = client.chat.completions.create(
-                            messages=full_messages,
-                            model="llama-3.3-70b-versatile",
-                            max_completion_tokens=3000
-                        )
-                        reply = response.choices[0].message.content
-                        st.markdown(reply)
-                        st.session_state.messages.append({"role": "assistant", "content": reply})
-                    except Exception as e:
-                        st.error(f"Error: {e}")
+                **Correct Answer:** [Correct Option]  
+                **Detailed Explanation:** [Complete explanation / reasoning]
+                </details>
+
+                ---
+                """
+                with st.spinner("Generating questions..."):
+                    response = client.chat.completions.create(
+                        messages=[
+                            {"role": "system", "content": f"You are an expert quiz designer fluent in {language}."},
+                            {"role": "user", "content": prompt}
+                        ],
+                        model="llama-3.3-70b-versatile"
+                    )
+                    st.success("🎉 Quiz Ready!")
+                    st.markdown(response.choices[0].message.content, unsafe_allow_html=True)
+            except Exception as e:
+                st.error(f"❌ Error: {e}")
+
+# ---------------------------------------------------------
+# TAB 3: Subjective, Proofs & Case Studies
+# ---------------------------------------------------------
+with tab3:
+    st.subheader("✏️ Free-Response, Case Studies & Proofs")
+    q_topic = st.text_input("Enter topic for open-ended practice:", placeholder="e.g., Business Strategy Case Study, Psychological Diagnosis, ASL Sentence Translation")
+    
+    if st.button("📝 Generate Practice Scenarios", type="primary"):
+        if not api_key:
+            st.error("⚠️ Please enter your Groq API Key in the left sidebar.")
+        elif not q_topic.strip():
+            st.warning("⚠️ Please enter a topic first.")
+        else:
+            try:
+                client = Groq(api_key=api_key)
+                prompt = f"""
+                You are an expert evaluator in {subject} at the {exam_level} level.
+                Generate 3 practice scenarios/questions (e.g., Business Case Study, Psychological Analysis, Proofs, or Translation) for: '{q_topic}'.
+                Language/Format: Output strictly in {language}.
+                
+                Provide a complete model answer/solution inside an expandable details element.
+                
+                Format:
+                ### Problem / Scenario [Number]
+                [Problem Description / Scenario Text]
+
+                <details>
+                <summary><b>View Model Answer / Solution Analysis</b></summary>
+
+                **Model Solution:** [Comprehensive answer, breakdown, or proof]
+                </details>
+
+                ---
+                """
+                with st.spinner("Generating practice scenarios..."):
+                    response = client.chat.completions.create(
+                        messages=[
+                            {"role": "system", "content": f"You are an expert evaluator fluent in {language}."},
+                            {"role": "user", "content": prompt}
+                        ],
+                        model="llama-3.3-70b-versatile"
+                    )
+                    st.success("🎉 Practice Scenarios Ready!")
+                    st.markdown(response.choices[0].message.content, unsafe_allow_html=True)
+            except Exception as e:
+                st.error(f"❌ Error: {e}")
